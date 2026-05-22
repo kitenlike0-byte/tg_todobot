@@ -153,14 +153,18 @@ async def focus(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ================= SCHEDULER =================
 scheduler = BackgroundScheduler()
 
-def check_reminders():now = datetime.now().strftime("%H:%M")
+def check_reminders():
+    now = datetime.now().strftime("%H:%M")
 
-    cursor.execute("SELECT id, user_id, text FROM reminders WHERE time=?", (now,))
+    cursor.execute(
+        "SELECT id, user_id, text FROM reminders WHERE time=?",
+        (now,)
+    )
+
     rows = cursor.fetchall()
 
     for r in rows:
-        print(f"REMINDER: {r}")  # сюда позже Telegram send
-
+        print(f"REMINDER: {r}")
 scheduler.add_job(check_reminders, "interval", seconds=30)
 
 def run_scheduler():
