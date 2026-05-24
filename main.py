@@ -6,11 +6,18 @@ import threading
 import time
 
 from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes
+)
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
 TOKEN = os.getenv("BOT_TOKEN")
+
+if not TOKEN:
+    raise ValueError("BOT_TOKEN not found")
 
 # ================= DB =================
 conn = sqlite3.connect("bot.db", check_same_thread=False)
