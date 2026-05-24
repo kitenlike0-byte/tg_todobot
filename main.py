@@ -138,17 +138,31 @@ async def today(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ---------- ADD ----------
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = " ".join(context.args)
+
+    if not text:
+        return await update.message.reply_text(
+            "Использование:\n/add купить хлеб"
+        )
+
     add_task(update.effective_user.id, text, 2)
-    await update.message.reply_text("добавлено")
+
+    await update.message.reply_text("✅ Добавлено")
 
 # ---------- REMINDER ----------
 async def remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) < 2:
+        return await update.message.reply_text(
+            "Использование:\n/remind 18:00 спорт"
+        )
+
     time_str = context.args[0]
     text = " ".join(context.args[1:])
 
     add_reminder(update.effective_user.id, text, time_str)
 
-    await update.message.reply_text(f"⏰ напоминание на {time_str}")
+    await update.message.reply_text(
+        f"⏰ Напоминание поставлено на {time_str}"
+    )
 
 # ---------- FOCUS ----------
 async def focus(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -196,5 +210,5 @@ def main():
     print("V4 running...")
     app.run_polling()
 
-if name == "__main__":
+if __name__ == "__main__":
     main()
