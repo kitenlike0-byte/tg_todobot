@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 import random
 import threading
 import time
+import http.server
+import threading
 
 from telegram import Update
 from telegram.ext import (
@@ -211,4 +213,47 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
+    main()
+
+# Простейший хэндлер, который на любой запрос ответит "ОК"
+class HealthCheckHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Bot is alive!")
+
+def run_health_check():
+    # Render автоматически передает нужный порт в переменную окружения PORT
+    port = int(os.getenv("PORT", 10000))
+    server = http.server.HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+    print(f"Fake web-server started on port {port}")
+    server.serve_forever()
+
+# ================= MAIN =================
+def main():
+    # 1. Запускаем фейковый веб-сервер в отдельном потоке для Render
+    threading.Thread(target=run_health_check, daemon=True).start()
+
+    # 2. Инициализируем и запускаем бота
+    import asyncio
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    app = Application.builder().token(TOKEN).build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("dump", dump))
+    app.add_handler(CommandHandler("add", add))
+    app.add_handler(CommandHandler("today", today))
+    app.add_handler(CommandHandler("remind", remind))
+    app.add_handler(CommandHandler("focus", focus))
+
+    print("V4 running...")
+    app.run_polling()
+
+if name == "__main__":
     main()
